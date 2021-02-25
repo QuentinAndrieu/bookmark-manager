@@ -10,6 +10,7 @@ export default class BookmarkForm extends React.Component<
     bookmarkType: BookmarkType;
     bookmark?: Bookmark;
     store: Store;
+    onSubmit: () => void;
   },
   { bookmark: Bookmark }
 > {
@@ -18,9 +19,45 @@ export default class BookmarkForm extends React.Component<
     bookmarkType: BookmarkType;
     bookmark?: Bookmark;
     store: Store;
+    onSubmit: () => void;
   }) {
     super(props);
 
+    this.state = {
+      bookmark: this.props.bookmark || this.getNewBookmark(),
+    };
+
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
+  }
+
+  handleChange(event: any): void {
+    const value = event.target.value;
+
+    this.setState({
+      bookmark: { ...this.state.bookmark, [event.target.name]: value },
+    });
+  }
+
+  handleSubmit(event: any): void {
+    event.preventDefault();
+
+    this.setState({
+      bookmark: { ...this.state.bookmark, createdDate: new Date().toString() },
+    });
+
+    if (this.props.isUpdate) {
+      this.props.store.dispatch(updateBookmark(this.state.bookmark));
+    } else {
+      this.props.store.dispatch(addBookmark(this.state.bookmark));
+    }
+
+    this.setState({ bookmark: this.getNewBookmark() });
+
+    this.props.onSubmit();
+  }
+
+  getNewBookmark(): Bookmark {
     const newBookmark: Bookmark = new Bookmark(
       Math.floor(Math.random() * 100000),
       '',
@@ -36,34 +73,7 @@ export default class BookmarkForm extends React.Component<
       newBookmark.duration = 10;
     }
 
-    this.state = {
-      bookmark: this.props.bookmark || newBookmark,
-    };
-
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
-  }
-
-  handleChange(event: any) {
-    const value = event.target.value;
-
-    this.setState({
-      bookmark: { ...this.state.bookmark, [event.target.name]: value },
-    });
-  }
-
-  handleSubmit(event: any) {
-    event.preventDefault();
-
-    this.setState({
-      bookmark: { ...this.state.bookmark, createdDate: new Date().toString() },
-    });
-
-    if (this.props.isUpdate) {
-      this.props.store.dispatch(updateBookmark(this.state.bookmark));
-    } else {
-      this.props.store.dispatch(addBookmark(this.state.bookmark));
-    }
+    return newBookmark;
   }
 
   render() {
@@ -82,7 +92,6 @@ export default class BookmarkForm extends React.Component<
 
     return (
       <div className='BookmarkForm'>
-        <h4>Add a bookmark</h4>
         <form onSubmit={this.handleSubmit}>
           <input
             placeholder='Title'
@@ -132,7 +141,9 @@ export default class BookmarkForm extends React.Component<
 
           {additionnalInputs}
 
-          <Button waves='light'>Save</Button>
+          <Button waves='light'>
+            {this.props.isUpdate ? 'Update' : 'Add'}
+          </Button>
         </form>
       </div>
     );

@@ -3,9 +3,8 @@ import React from 'react';
 import { Col, Row } from 'react-materialize';
 import './App.css';
 import BookmarkList from './components/BookmarkList';
-import BookmarkForm from './components/BookmarkForm';
 import { bookmarkSlice } from './store/Bookmark/BookmarkSlice';
-import { Bookmark, BookmarkType } from './models/Bookmark';
+import { Bookmark } from './models/Bookmark';
 
 export default class App extends React.Component<
   {},
@@ -42,12 +41,6 @@ export default class App extends React.Component<
           bookmarks={this.state.bookmarks}
           store={this.state.store}
         ></BookmarkList>
-
-        <BookmarkForm
-          bookmarkType={BookmarkType.VIDEO}
-          isUpdate={false}
-          store={this.state.store}
-        ></BookmarkForm>
       </div>
     );
   }
