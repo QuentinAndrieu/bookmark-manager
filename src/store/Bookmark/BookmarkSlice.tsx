@@ -20,7 +20,6 @@ export const bookmarkSlice = createSlice({
       );
     },
     updateBookmark: (state, action: PayloadAction<Bookmark>) => {
-      console.log('delete');
       state.bookmarks = state.bookmarks.map((bookmark) => {
         if (bookmark.id === action.payload.id) {
           bookmark = action.payload;
@@ -33,7 +32,7 @@ export const bookmarkSlice = createSlice({
 });
 
 export const {
-  addBookmark: addBookmark,
-  deleteBookmark: deleteBookmark,
-  updateBookmark: updateBookmark,
+  addBookmark,
+  deleteBookmark,
+  updateBookmark,
 } = bookmarkSlice.actions;

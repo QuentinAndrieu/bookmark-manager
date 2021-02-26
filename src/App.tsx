@@ -5,11 +5,9 @@ import './App.css';
 import BookmarkList from './components/BookmarkList';
 import { bookmarkSlice } from './store/Bookmark/BookmarkSlice';
 import { Bookmark } from './models/Bookmark';
+import { getDefaultMiddleware } from '@reduxjs/toolkit';
 
-export default class App extends React.Component<
-  {},
-  { bookmarks: Bookmark[]; store: Store }
-> {
+export default class App extends React.Component<{}, { bookmarks: Bookmark[]; store: Store }> {
   constructor(props: {}) {
     super(props);
 
@@ -17,6 +15,9 @@ export default class App extends React.Component<
       bookmarks: [],
       store: configureStore({
         reducer: bookmarkSlice.reducer,
+        middleware: getDefaultMiddleware({
+          serializableCheck: false,
+        }),
       }),
     };
   }
@@ -30,17 +31,14 @@ export default class App extends React.Component<
 
   render() {
     return (
-      <div className='App'>
+      <div className='App' id='App'>
         <Row>
           <Col l={12}>
             <h1>Bookmark Manager</h1>
           </Col>
         </Row>
 
-        <BookmarkList
-          bookmarks={this.state.bookmarks}
-          store={this.state.store}
-        ></BookmarkList>
+        <BookmarkList bookmarks={this.state.bookmarks} store={this.state.store}></BookmarkList>
       </div>
     );
   }
