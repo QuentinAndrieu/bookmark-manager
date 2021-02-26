@@ -3,9 +3,9 @@ import { Store } from '@reduxjs/toolkit';
 import React from 'react';
 import { Button, Chip, Col, Row } from 'react-materialize';
 import { Bookmark, BookmarkType } from '../models/Bookmark';
-import { addBookmark, updateBookmark } from '../store/Bookmark/BookmarkSlice';
+import { addBookmark, updateBookmark } from '../BookmarkSlice';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
-import { BookmarkService } from '../services/BookmarkService';
+import { BookmarkService } from '../BookmarkService';
 import { FlickrEmbedReponse, VimeoEmbedReponse } from '../models/EmbedResponse';
 
 export default class BookmarkForm extends React.Component<
@@ -24,6 +24,7 @@ export default class BookmarkForm extends React.Component<
       keywords: string[];
     };
     keyword: string;
+    disabledForm: boolean;
   }
 > {
   constructor(props: { isUpdate: boolean; bookmarkType: BookmarkType; bookmark?: Bookmark; store: Store; onSubmit: () => void }) {
@@ -37,6 +38,7 @@ export default class BookmarkForm extends React.Component<
         keywords: this.props.bookmark?.keywords || [],
       },
       keyword: '',
+      disabledForm: false,
     };
 
     this.handleChangeFormBookmark = this.handleChangeFormBookmark.bind(this);
@@ -59,22 +61,10 @@ export default class BookmarkForm extends React.Component<
     });
   }
 
-  private dispatchBookmark(bookmark: Bookmark) {
-    if (this.props.isUpdate) {
-      this.props.store.dispatch(updateBookmark(bookmark));
-    } else {
-      this.props.store.dispatch(addBookmark(bookmark));
-    }
-
-    this.setState({
-      formBookmark: { url: '', height: 100, width: 100, keywords: [] },
-    });
-
-    this.props.onSubmit();
-  }
-
   private handleSubmit(event: any): void {
     event.preventDefault();
+
+    this.setState({ disabledForm: true });
 
     if (this.props.bookmarkType === BookmarkType.VIMEO) {
       this.fetchBookmarkVimeo().then((bookmark: Bookmark) => this.dispatchBookmark(bookmark));
@@ -115,7 +105,7 @@ export default class BookmarkForm extends React.Component<
 
         return new Bookmark(
           this.props.bookmark?.id || Math.floor(Math.random() * 100000) + 1,
-          url,
+          this.state.formBookmark?.url,
           title,
           author_name,
           width,
@@ -130,6 +120,21 @@ export default class BookmarkForm extends React.Component<
     );
   }
 
+  private dispatchBookmark(bookmark: Bookmark): void {
+    if (this.props.isUpdate) {
+      this.props.store.dispatch(updateBookmark(bookmark));
+    } else {
+      this.props.store.dispatch(addBookmark(bookmark));
+    }
+
+    this.setState({
+      formBookmark: { url: '', height: 100, width: 100, keywords: [] },
+      disabledForm: false,
+    });
+
+    this.props.onSubmit();
+  }
+
   private addKeyword() {
     const keywords: string[] = [...this.state.formBookmark.keywords];
     keywords.push(this.state.keyword);
@@ -140,7 +145,7 @@ export default class BookmarkForm extends React.Component<
     });
   }
 
-  private removeKeyword(index: number) {
+  private removeKeyword(index: number): void {
     let keywords: string[] = [...this.state.formBookmark.keywords];
     keywords.splice(index, 1);
 
@@ -150,6 +155,38 @@ export default class BookmarkForm extends React.Component<
   }
 
   render() {
+    const additionnalInputsVimeo =
+      this.props.bookmarkType === BookmarkType.VIMEO ? (
+        <div>
+          <label>
+            <strong>Width</strong>
+            <input
+              disabled={this.state.disabledForm}
+              placeholder='Width'
+              id='width'
+              type='number'
+              name='width'
+              value={this.state.formBookmark?.width}
+              onChange={this.handleChangeFormBookmark}
+              required
+            />
+          </label>
+          <label>
+            <strong>Height</strong>
+            <input
+              disabled={this.state.disabledForm}
+              placeholder='Height'
+              type='number'
+              id='height'
+              name='height'
+              value={this.state.formBookmark?.height}
+              onChange={this.handleChangeFormBookmark}
+              required
+            />
+          </label>
+        </div>
+      ) : null;
+
     return (
       <div className='BookmarkForm'>
         <form onSubmit={this.handleSubmit}>
@@ -157,17 +194,19 @@ export default class BookmarkForm extends React.Component<
             <Col s={12}>
               <label>
                 <strong>URL</strong>
-                <input placeholder='URL' type='url' id='url' name='url' value={this.state.formBookmark?.url} onChange={this.handleChangeFormBookmark} required />
+                <input
+                  disabled={this.state.disabledForm}
+                  placeholder='URL'
+                  type='url'
+                  id='url'
+                  name='url'
+                  value={this.state.formBookmark?.url}
+                  onChange={this.handleChangeFormBookmark}
+                  required
+                />
               </label>
 
-              <label>
-                <strong>Width</strong>
-                <input placeholder='Width' id='width' type='number' name='width' value={this.state.formBookmark?.width} onChange={this.handleChangeFormBookmark} required />
-              </label>
-              <label>
-                <strong>Height</strong>
-                <input placeholder='Height' type='number' id='height' name='height' value={this.state.formBookmark?.height} onChange={this.handleChangeFormBookmark} required />
-              </label>
+              {additionnalInputsVimeo}
             </Col>
 
             <Col s={7}>
@@ -177,7 +216,16 @@ export default class BookmarkForm extends React.Component<
                   {this.state.formBookmark?.keywords.map((keyword: string, index: number) => {
                     return (
                       <Chip key={index}>
-                        {keyword} <FontAwesomeIcon icon={faTimes} onClick={() => this.removeKeyword(index)} />
+                        {keyword}
+                        <FontAwesomeIcon
+                          style={{ marginLeft: '5px' }}
+                          icon={faTimes}
+                          onClick={() => {
+                            if (!this.state.disabledForm) {
+                              this.removeKeyword(index);
+                            }
+                          }}
+                        />
                       </Chip>
                     );
                   })}
@@ -187,7 +235,16 @@ export default class BookmarkForm extends React.Component<
             <Col s={4}>
               <label>
                 <strong>Add new keyword</strong>
-                <input placeholder='Add new keyword' type='text' id='keyWord' name='keyWord' value={this.state.keyword} onChange={this.handleChangeKeyword} minLength={3} />
+                <input
+                  disabled={this.state.disabledForm}
+                  placeholder='Add new keyword'
+                  type='text'
+                  id='keyWord'
+                  name='keyWord'
+                  value={this.state.keyword}
+                  onChange={this.handleChangeKeyword}
+                  minLength={3}
+                />
               </label>
             </Col>
             <Col s={1}>
@@ -195,7 +252,7 @@ export default class BookmarkForm extends React.Component<
             </Col>
 
             <Col s={12}>
-              <Button waves='light' style={{ marginTop: '10px' }}>
+              <Button waves='light' style={{ marginTop: '10px' }} disabled={this.state.disabledForm}>
                 {this.props.isUpdate ? 'Update' : 'Add'}
               </Button>
             </Col>

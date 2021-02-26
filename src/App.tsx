@@ -2,9 +2,9 @@ import { configureStore, Store } from '@reduxjs/toolkit';
 import React from 'react';
 import { Col, Row } from 'react-materialize';
 import './App.css';
-import BookmarkList from './components/BookmarkList';
-import { bookmarkSlice } from './store/Bookmark/BookmarkSlice';
-import { Bookmark } from './models/Bookmark';
+import BookmarkList from './Bookmark/components/BookmarkList';
+import { bookmarkSlice } from './Bookmark/BookmarkSlice';
+import { Bookmark } from './Bookmark/models/Bookmark';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 
 export default class App extends React.Component<{}, { bookmarks: Bookmark[]; store: Store }> {
@@ -23,10 +23,7 @@ export default class App extends React.Component<{}, { bookmarks: Bookmark[]; st
   }
 
   componentDidMount() {
-    this.state.store.subscribe(() => {
-      console.log(this.state.store.getState());
-      this.setState({ bookmarks: this.state.store.getState().bookmarks });
-    });
+    this.state.store.subscribe(() => this.setState({ bookmarks: this.state.store.getState().bookmarks }));
   }
 
   render() {

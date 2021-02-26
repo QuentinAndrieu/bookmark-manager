@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Bookmark } from '../../models/Bookmark';
+import { Bookmark } from './models/Bookmark';
 
 export interface BookmarkState {
   bookmarks: Bookmark[];
@@ -15,9 +15,7 @@ export const bookmarkSlice = createSlice({
       state.bookmarks.push(action.payload);
     },
     deleteBookmark: (state, action: PayloadAction<number>) => {
-      state.bookmarks = state.bookmarks.filter(
-        (bookmark) => bookmark.id !== action.payload
-      );
+      state.bookmarks = state.bookmarks.filter((bookmark) => bookmark.id !== action.payload);
     },
     updateBookmark: (state, action: PayloadAction<Bookmark>) => {
       state.bookmarks = state.bookmarks.map((bookmark) => {
@@ -31,8 +29,4 @@ export const bookmarkSlice = createSlice({
   },
 });
 
-export const {
-  addBookmark,
-  deleteBookmark,
-  updateBookmark,
-} = bookmarkSlice.actions;
+export const { addBookmark, deleteBookmark, updateBookmark } = bookmarkSlice.actions;
