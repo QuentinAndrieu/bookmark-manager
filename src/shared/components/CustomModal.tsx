@@ -26,7 +26,7 @@ export class CustomModal extends React.Component<{ isOpen: boolean; labelHeader:
 
     return (
       <div className='ModalBookmarkForm'>
-        <Modal isOpen={this.props.isOpen} onRequestClose={this.props.onClose} style={customStyles}>
+        <Modal isOpen={this.props.isOpen} onRequestClose={this.props.onClose} style={customStyles} contentLabel='Example Modal'>
           <h2>{this.props.labelHeader}</h2>
 
           {this.props.children}

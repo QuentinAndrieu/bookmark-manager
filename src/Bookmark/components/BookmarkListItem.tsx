@@ -12,10 +12,16 @@ export class BookmarkListItem extends React.Component<
     bookmark: Bookmark;
     store: Store;
     openModalBookmarkForm: (bookmark: Bookmark, bookmarkType: BookmarkType, isUpdate: true, labelHeader: string) => void;
+    openModalBookmarkOverview: (bookmark: Bookmark) => void;
   },
   {}
 > {
-  constructor(props: { bookmark: Bookmark; store: Store; openModalBookmarkForm: (bookmark: Bookmark, bookmarkType: BookmarkType, isUpdate: true, labelHeader: string) => void }) {
+  constructor(props: {
+    bookmark: Bookmark;
+    store: Store;
+    openModalBookmarkForm: (bookmark: Bookmark, bookmarkType: BookmarkType, isUpdate: true, labelHeader: string) => void;
+    openModalBookmarkOverview: (bookmark: Bookmark) => void;
+  }) {
     super(props);
 
     this.state = {};
@@ -26,7 +32,13 @@ export class BookmarkListItem extends React.Component<
       <CollectionItem key={this.props.bookmark.id}>
         <Row>
           <Col s={1}>
-            <img src={this.props.bookmark.thumbnail_url} alt='Logo' width='100%' style={{ marginTop: '20px' }} />
+            <img
+              onClick={() => this.props.openModalBookmarkOverview(this.props.bookmark)}
+              src={this.props.bookmark.thumbnail_url}
+              alt='Logo'
+              width='100%'
+              style={{ marginTop: '20px', cursor: 'pointer' }}
+            />
           </Col>
           <Col s={10}>
             <h5>

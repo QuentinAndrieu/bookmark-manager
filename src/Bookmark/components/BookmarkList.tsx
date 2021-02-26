@@ -10,13 +10,17 @@ import { BookmarkListItem } from './BookmarkListItem';
 export default class BookmarkList extends React.Component<
   { bookmarks: Bookmark[]; store: Store },
   {
-    isOpenModal: boolean;
+    isOpenModalForm: boolean;
+    isOpenModalOverview: boolean;
     activePage: number;
-    bookmarkModal: {
+    bookmarkFormModal: {
       bookmark: Bookmark | undefined;
       bookmarkType: BookmarkType;
       isUpdate: boolean;
       labelHeader: string;
+    };
+    bookmarkOverviewModal: {
+      bookmark: Bookmark | undefined;
     };
   }
 > {
@@ -24,23 +28,33 @@ export default class BookmarkList extends React.Component<
     super(props);
 
     this.state = {
-      isOpenModal: false,
+      isOpenModalForm: false,
+      isOpenModalOverview: false,
       activePage: 1,
-      bookmarkModal: {
+      bookmarkFormModal: {
         bookmark: undefined,
         bookmarkType: BookmarkType.FLICKR,
         isUpdate: false,
         labelHeader: '',
       },
+      bookmarkOverviewModal: {
+        bookmark: undefined,
+      },
     };
 
-    this.setStateOpenModal = this.setStateOpenModal.bind(this);
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.setStateOpenModalOverview = this.setStateOpenModalOverview.bind(this);
+    this.openModalBookmarkOverview = this.openModalBookmarkOverview.bind(this);
+    this.setStateOpenModalForm = this.setStateOpenModalForm.bind(this);
     this.openModalBookmarkForm = this.openModalBookmarkForm.bind(this);
   }
 
-  private setStateOpenModal(isOpenModal: boolean): void {
-    this.setState({ isOpenModal });
+  private setStateOpenModalForm(isOpenModal: boolean): void {
+    this.setState({ isOpenModalForm: isOpenModal });
+  }
+
+  private setStateOpenModalOverview(isOpenModal: boolean): void {
+    this.setState({ isOpenModalOverview: isOpenModal });
   }
 
   private handlePageChange(pageNumber: number): void {
@@ -49,12 +63,21 @@ export default class BookmarkList extends React.Component<
 
   private openModalBookmarkForm(bookmark: Bookmark | undefined, bookmarkType: BookmarkType, isUpdate: boolean, labelHeader: string): void {
     this.setState({
-      isOpenModal: true,
-      bookmarkModal: {
+      isOpenModalForm: true,
+      bookmarkFormModal: {
         bookmark,
         bookmarkType,
         isUpdate,
         labelHeader,
+      },
+    });
+  }
+
+  private openModalBookmarkOverview(bookmark: Bookmark | undefined): void {
+    this.setState({
+      isOpenModalOverview: true,
+      bookmarkOverviewModal: {
+        bookmark,
       },
     });
   }
@@ -69,7 +92,15 @@ export default class BookmarkList extends React.Component<
             <Collection header='Bookmarks' style={{ minHeight: '300px' }}>
               {bookmarksFilterByPage.length > 0 ? (
                 bookmarksFilterByPage.map((bookmark: Bookmark, i) => {
-                  return <BookmarkListItem key={bookmark.id} bookmark={bookmark} store={this.props.store} openModalBookmarkForm={this.openModalBookmarkForm}></BookmarkListItem>;
+                  return (
+                    <BookmarkListItem
+                      key={bookmark.id}
+                      bookmark={bookmark}
+                      store={this.props.store}
+                      openModalBookmarkForm={this.openModalBookmarkForm}
+                      openModalBookmarkOverview={this.openModalBookmarkOverview}
+                    ></BookmarkListItem>
+                  );
                 })
               ) : (
                 <CollectionItem key='no-data' style={{ textAlign: 'center' }}>
@@ -87,23 +118,34 @@ export default class BookmarkList extends React.Component<
               onChange={this.handlePageChange.bind(this)}
             />
           </Col>
-          <Col s={12}>
-            <Button style={{ marginRight: '10px' }} onClick={() => this.openModalBookmarkForm(undefined, BookmarkType.VIMEO, false, 'Add video Vimeo')}>
+          <Col s={12} style={{ textAlign: 'right', marginTop: '15px' }}>
+            <Button style={{ marginRight: '10px', backgroundColor: 'coral' }} onClick={() => this.openModalBookmarkForm(undefined, BookmarkType.VIMEO, false, 'Add video Vimeo')}>
               Add video Vimeo
             </Button>
 
-            <Button onClick={() => this.openModalBookmarkForm(undefined, BookmarkType.FLICKR, false, 'Add photo Flickr')}>Add photo Flickr</Button>
+            <Button
+              style={{ marginRight: '10px', backgroundColor: 'cadetblue' }}
+              onClick={() => this.openModalBookmarkForm(undefined, BookmarkType.FLICKR, false, 'Add photo Flickr')}
+            >
+              Add photo Flickr
+            </Button>
           </Col>
         </Row>
 
-        <CustomModal isOpen={this.state.isOpenModal} labelHeader={this.state.bookmarkModal.labelHeader} onClose={() => this.setStateOpenModal(false)}>
+        <CustomModal isOpen={this.state.isOpenModalForm} labelHeader={this.state.bookmarkFormModal.labelHeader} onClose={() => this.setStateOpenModalForm(false)}>
           <BookmarkForm
-            bookmarkType={this.state.bookmarkModal.bookmarkType}
-            isUpdate={this.state.bookmarkModal.isUpdate}
-            bookmark={this.state.bookmarkModal.bookmark}
+            bookmarkType={this.state.bookmarkFormModal.bookmarkType}
+            isUpdate={this.state.bookmarkFormModal.isUpdate}
+            bookmark={this.state.bookmarkFormModal.bookmark}
             store={this.props.store}
-            onSubmit={() => this.setStateOpenModal(false)}
+            onSubmit={() => this.setStateOpenModalForm(false)}
+            onCancel={() => this.setStateOpenModalForm(false)}
           ></BookmarkForm>
+        </CustomModal>
+
+        <CustomModal isOpen={this.state.isOpenModalOverview} labelHeader={'Overview'} onClose={() => this.setStateOpenModalOverview(false)}>
+          <div className='content' dangerouslySetInnerHTML={{ __html: this.state.bookmarkOverviewModal?.bookmark?.html || '' }}></div>
+          {/* {this.state.bookmarkOverviewModal?.bookmark?.html} */}
         </CustomModal>
       </div>
     );

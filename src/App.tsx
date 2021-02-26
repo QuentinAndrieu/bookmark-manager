@@ -6,6 +6,8 @@ import BookmarkList from './Bookmark/components/BookmarkList';
 import { bookmarkSlice } from './Bookmark/BookmarkSlice';
 import { Bookmark } from './Bookmark/models/Bookmark';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify';
 
 export default class App extends React.Component<{}, { bookmarks: Bookmark[]; store: Store }> {
   constructor(props: {}) {
@@ -23,7 +25,10 @@ export default class App extends React.Component<{}, { bookmarks: Bookmark[]; st
   }
 
   componentDidMount() {
-    this.state.store.subscribe(() => this.setState({ bookmarks: this.state.store.getState().bookmarks }));
+    this.state.store.subscribe(() => {
+      console.log('state', this.state.store.getState().bookmarks);
+      this.setState({ bookmarks: this.state.store.getState().bookmarks });
+    });
   }
 
   render() {
@@ -36,6 +41,7 @@ export default class App extends React.Component<{}, { bookmarks: Bookmark[]; st
         </Row>
 
         <BookmarkList bookmarks={this.state.bookmarks} store={this.state.store}></BookmarkList>
+        <ToastContainer />
       </div>
     );
   }

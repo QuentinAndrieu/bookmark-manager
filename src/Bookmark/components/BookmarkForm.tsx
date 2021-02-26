@@ -7,6 +7,7 @@ import { addBookmark, updateBookmark } from '../BookmarkSlice';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { BookmarkService } from '../BookmarkService';
 import { FlickrEmbedReponse, VimeoEmbedReponse } from '../models/EmbedResponse';
+import { toast } from 'react-toastify';
 
 export default class BookmarkForm extends React.Component<
   {
@@ -15,6 +16,7 @@ export default class BookmarkForm extends React.Component<
     bookmark?: Bookmark;
     store: Store;
     onSubmit: () => void;
+    onCancel: () => void;
   },
   {
     formBookmark: {
@@ -27,14 +29,14 @@ export default class BookmarkForm extends React.Component<
     disabledForm: boolean;
   }
 > {
-  constructor(props: { isUpdate: boolean; bookmarkType: BookmarkType; bookmark?: Bookmark; store: Store; onSubmit: () => void }) {
+  constructor(props: { isUpdate: boolean; bookmarkType: BookmarkType; bookmark?: Bookmark; store: Store; onSubmit: () => void; onCancel: () => void }) {
     super(props);
 
     this.state = {
       formBookmark: {
         url: this.props.bookmark?.url || '',
-        width: this.props.bookmark?.width || 100,
-        height: this.props.bookmark?.height || 100,
+        width: this.props.bookmark?.width || 1000,
+        height: this.props.bookmark?.height || 1000,
         keywords: this.props.bookmark?.keywords || [],
       },
       keyword: '',
@@ -67,11 +69,21 @@ export default class BookmarkForm extends React.Component<
     this.setState({ disabledForm: true });
 
     if (this.props.bookmarkType === BookmarkType.VIMEO) {
-      this.fetchBookmarkVimeo().then((bookmark: Bookmark) => this.dispatchBookmark(bookmark));
+      this.fetchBookmarkVimeo()
+        .then((bookmark: Bookmark) => this.dispatchBookmark(bookmark))
+        .catch((error) => {
+          this.sendToastError('Error fetching vimeo video');
+          this.setState({ disabledForm: false });
+        });
     }
 
     if (this.props.bookmarkType === BookmarkType.FLICKR) {
-      this.fetchBookmarkFlickr().then((bookmark: Bookmark) => this.dispatchBookmark(bookmark));
+      this.fetchBookmarkFlickr()
+        .then((bookmark: Bookmark) => this.dispatchBookmark(bookmark))
+        .catch((error) => {
+          this.sendToastError('Error fetching flick photo');
+          this.setState({ disabledForm: false });
+        });
     }
   }
 
@@ -101,7 +113,7 @@ export default class BookmarkForm extends React.Component<
   private fetchBookmarkFlickr(): Promise<Bookmark> {
     return BookmarkService.fetchEmbedFlickr(this.state.formBookmark?.url, this.state.formBookmark?.width, this.state.formBookmark?.height).then(
       (flickrEmbedReponse: FlickrEmbedReponse) => {
-        const { author_name, title, width, height, url, html, thumbnail_url } = flickrEmbedReponse;
+        const { author_name, title, width, height, html, thumbnail_url } = flickrEmbedReponse;
 
         return new Bookmark(
           this.props.bookmark?.id || Math.floor(Math.random() * 100000) + 1,
@@ -154,6 +166,18 @@ export default class BookmarkForm extends React.Component<
     });
   }
 
+  private sendToastError(message: string): void {
+    toast.error(message, {
+      position: 'bottom-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    });
+  }
+
   render() {
     const additionnalInputsVimeo =
       this.props.bookmarkType === BookmarkType.VIMEO ? (
@@ -196,7 +220,7 @@ export default class BookmarkForm extends React.Component<
                 <strong>URL</strong>
                 <input
                   disabled={this.state.disabledForm}
-                  placeholder='URL'
+                  placeholder={this.props.bookmarkType === BookmarkType.VIMEO ? 'https://vimeo.com/375468729' : 'https://www.flickr.com/photos/rickastley/5625725242/'}
                   type='url'
                   id='url'
                   name='url'
@@ -251,9 +275,20 @@ export default class BookmarkForm extends React.Component<
               <FontAwesomeIcon icon={faPlus} style={{ marginTop: '45px' }} onClick={this.addKeyword} />
             </Col>
 
-            <Col s={12}>
-              <Button waves='light' style={{ marginTop: '10px' }} disabled={this.state.disabledForm}>
+            <Col s={12} style={{ textAlign: 'right', marginTop: '15px' }}>
+              <Button style={{ marginRight: '10px' }} disabled={this.state.disabledForm}>
                 {this.props.isUpdate ? 'Update' : 'Add'}
+              </Button>
+
+              <Button
+                style={{ backgroundColor: 'lightgrey' }}
+                disabled={this.state.disabledForm}
+                onClick={(event) => {
+                  event.preventDefault();
+                  this.props.onCancel();
+                }}
+              >
+                Cancel
               </Button>
             </Col>
           </Row>
