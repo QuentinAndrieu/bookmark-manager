@@ -1,3 +1,8 @@
+## Before using the app 
+
+Go to https://cors-anywhere.herokuapp.com/ and click on the button for temporary access
+It's necessary to bypass CORS issues with Flickr 
+
 ## Demo
 
 https://bookmark-manager-2f26c.web.app/
