@@ -8,10 +8,6 @@ export class CustomModal extends React.Component<{ isOpen: boolean; labelHeader:
     this.state = {};
   }
 
-  componentDidMount() {
-    Modal.setAppElement('#App');
-  }
-
   render() {
     const customStyles = {
       content: {

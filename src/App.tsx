@@ -8,6 +8,7 @@ import { Bookmark } from './Bookmark/models/Bookmark';
 import { getDefaultMiddleware } from '@reduxjs/toolkit';
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import Modal from 'react-modal';
 
 export default class App extends React.Component<{}, { bookmarks: Bookmark[]; store: Store }> {
   constructor(props: {}) {
@@ -25,6 +26,7 @@ export default class App extends React.Component<{}, { bookmarks: Bookmark[]; st
   }
 
   componentDidMount() {
+    Modal.setAppElement('#App');
     this.state.store.subscribe(() => this.setState({ bookmarks: this.state.store.getState().bookmarks }));
   }
 
