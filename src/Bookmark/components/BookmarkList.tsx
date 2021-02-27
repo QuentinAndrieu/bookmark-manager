@@ -1,7 +1,7 @@
 import { Store } from '@reduxjs/toolkit';
 import React from 'react';
 import { Button, Col, Collection, CollectionItem, Row } from 'react-materialize';
-import { Bookmark, BookmarkType } from '../models/Bookmark';
+import { Bookmark, BookmarkType, BookmarkTypeColor } from '../models/Bookmark';
 import BookmarkForm from './BookmarkForm';
 import Pagination from 'react-js-pagination';
 import { CustomModal } from '../../shared/components/CustomModal';
@@ -119,12 +119,15 @@ export default class BookmarkList extends React.Component<
             />
           </Col>
           <Col s={12} style={{ textAlign: 'right', marginTop: '15px' }}>
-            <Button style={{ marginRight: '10px', backgroundColor: 'coral' }} onClick={() => this.openModalBookmarkForm(undefined, BookmarkType.VIMEO, false, 'Add video Vimeo')}>
+            <Button
+              style={{ marginRight: '10px', backgroundColor: BookmarkTypeColor.VIMEO }}
+              onClick={() => this.openModalBookmarkForm(undefined, BookmarkType.VIMEO, false, 'Add video Vimeo')}
+            >
               Add video Vimeo
             </Button>
 
             <Button
-              style={{ marginRight: '10px', backgroundColor: 'cadetblue' }}
+              style={{ marginRight: '10px', backgroundColor: BookmarkTypeColor.FLICKR }}
               onClick={() => this.openModalBookmarkForm(undefined, BookmarkType.FLICKR, false, 'Add photo Flickr')}
             >
               Add photo Flickr
@@ -132,7 +135,12 @@ export default class BookmarkList extends React.Component<
           </Col>
         </Row>
 
-        <CustomModal isOpen={this.state.isOpenModalForm} labelHeader={this.state.bookmarkFormModal.labelHeader} onClose={() => this.setStateOpenModalForm(false)}>
+        <CustomModal
+          isOpen={this.state.isOpenModalForm}
+          labelHeader={this.state.bookmarkFormModal.labelHeader}
+          labelHeaderColor={BookmarkTypeColor[this.state.bookmarkFormModal.bookmarkType]}
+          onClose={() => this.setStateOpenModalForm(false)}
+        >
           <BookmarkForm
             bookmarkType={this.state.bookmarkFormModal.bookmarkType}
             isUpdate={this.state.bookmarkFormModal.isUpdate}
@@ -143,9 +151,13 @@ export default class BookmarkList extends React.Component<
           ></BookmarkForm>
         </CustomModal>
 
-        <CustomModal isOpen={this.state.isOpenModalOverview} labelHeader={'Overview'} onClose={() => this.setStateOpenModalOverview(false)}>
+        <CustomModal
+          isOpen={this.state.isOpenModalOverview}
+          labelHeader={this.state.bookmarkOverviewModal.bookmark?.title || ''}
+          labelHeaderColor={this.state.bookmarkOverviewModal?.bookmark?.type ? BookmarkTypeColor[this.state.bookmarkOverviewModal.bookmark.type] : 'black'}
+          onClose={() => this.setStateOpenModalOverview(false)}
+        >
           <div className='content' dangerouslySetInnerHTML={{ __html: this.state.bookmarkOverviewModal?.bookmark?.html || '' }}></div>
-          {/* {this.state.bookmarkOverviewModal?.bookmark?.html} */}
         </CustomModal>
       </div>
     );

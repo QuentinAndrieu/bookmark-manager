@@ -1,8 +1,8 @@
 import Modal from 'react-modal';
 import React from 'react';
 
-export class CustomModal extends React.Component<{ isOpen: boolean; labelHeader: string; onClose: () => void }, {}> {
-  constructor(props: { isOpen: boolean; labelHeader: string; onClose: () => void }) {
+export class CustomModal extends React.Component<{ isOpen: boolean; labelHeader: string; labelHeaderColor: string; onClose: () => void }, {}> {
+  constructor(props: { isOpen: boolean; labelHeader: string; labelHeaderColor: string; onClose: () => void }) {
     super(props);
 
     this.state = {};
@@ -26,8 +26,8 @@ export class CustomModal extends React.Component<{ isOpen: boolean; labelHeader:
 
     return (
       <div className='ModalBookmarkForm'>
-        <Modal isOpen={this.props.isOpen} onRequestClose={this.props.onClose} style={customStyles} contentLabel='Example Modal'>
-          <h2>{this.props.labelHeader}</h2>
+        <Modal isOpen={this.props.isOpen} onRequestClose={this.props.onClose} style={customStyles}>
+          <h2 style={{ color: this.props.labelHeaderColor }}>{this.props.labelHeader}</h2>
 
           {this.props.children}
         </Modal>

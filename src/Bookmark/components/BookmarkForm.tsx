@@ -2,12 +2,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { Store } from '@reduxjs/toolkit';
 import React from 'react';
 import { Button, Chip, Col, Row } from 'react-materialize';
-import { Bookmark, BookmarkType } from '../models/Bookmark';
+import { Bookmark, BookmarkType, BookmarkTypeColor } from '../models/Bookmark';
 import { addBookmark, updateBookmark } from '../BookmarkSlice';
 import { faPlus, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { BookmarkService } from '../BookmarkService';
 import { FlickrEmbedReponse, VimeoEmbedReponse } from '../models/EmbedResponse';
 import { toast } from 'react-toastify';
+
+interface FormBookmark {
+  url: string;
+  width: number;
+  height: number;
+  keywords: string[];
+}
 
 export default class BookmarkForm extends React.Component<
   {
@@ -19,12 +26,7 @@ export default class BookmarkForm extends React.Component<
     onCancel: () => void;
   },
   {
-    formBookmark: {
-      url: string;
-      width: number;
-      height: number;
-      keywords: string[];
-    };
+    formBookmark: FormBookmark;
     keyword: string;
     disabledForm: boolean;
   }
@@ -276,7 +278,7 @@ export default class BookmarkForm extends React.Component<
             </Col>
 
             <Col s={12} style={{ textAlign: 'right', marginTop: '15px' }}>
-              <Button style={{ marginRight: '10px' }} disabled={this.state.disabledForm}>
+              <Button style={{ marginRight: '10px', backgroundColor: BookmarkTypeColor[this.props.bookmarkType] }} disabled={this.state.disabledForm}>
                 {this.props.isUpdate ? 'Update' : 'Add'}
               </Button>
 

@@ -43,5 +43,10 @@ export class Bookmark {
 
 export enum BookmarkType {
   FLICKR = 'FLICKR',
-  VIMEO = 'VIDEO',
+  VIMEO = 'VIMEO',
+}
+
+export enum BookmarkTypeColor {
+  FLICKR = 'coral',
+  VIMEO = 'cadetblue',
 }
