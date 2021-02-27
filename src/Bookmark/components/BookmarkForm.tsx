@@ -270,6 +270,12 @@ export default class BookmarkForm extends React.Component<
                   value={this.state.keyword}
                   onChange={this.handleChangeKeyword}
                   minLength={3}
+                  onKeyDown={(event: any) => {
+                    if (event.key === 'Enter') {
+                      event.preventDefault();
+                      this.addKeyword();
+                    }
+                  }}
                 />
               </label>
             </Col>
