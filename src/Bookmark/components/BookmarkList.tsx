@@ -22,6 +22,7 @@ export default class BookmarkList extends React.Component<
     bookmarkOverviewModal: {
       bookmark: Bookmark | undefined;
     };
+    search: string;
   }
 > {
   constructor(props: { bookmarks: Bookmark[]; store: Store }) {
@@ -40,25 +41,34 @@ export default class BookmarkList extends React.Component<
       bookmarkOverviewModal: {
         bookmark: undefined,
       },
+      search: '',
     };
 
     this.handlePageChange = this.handlePageChange.bind(this);
+    this.handleSearchChange = this.handleSearchChange.bind(this);
     this.setStateOpenModalOverview = this.setStateOpenModalOverview.bind(this);
     this.openModalBookmarkOverview = this.openModalBookmarkOverview.bind(this);
     this.setStateOpenModalForm = this.setStateOpenModalForm.bind(this);
     this.openModalBookmarkForm = this.openModalBookmarkForm.bind(this);
   }
 
-  private setStateOpenModalForm(isOpenModal: boolean): void {
-    this.setState({ isOpenModalForm: isOpenModal });
+  private setStateOpenModalForm(isOpenModalForm: boolean): void {
+    this.setState({ isOpenModalForm });
   }
 
-  private setStateOpenModalOverview(isOpenModal: boolean): void {
-    this.setState({ isOpenModalOverview: isOpenModal });
+  private setStateOpenModalOverview(isOpenModalOverview: boolean): void {
+    this.setState({ isOpenModalOverview });
   }
 
-  private handlePageChange(pageNumber: number): void {
-    this.setState({ activePage: pageNumber });
+  private handlePageChange(activePage: number): void {
+    this.setState({ activePage });
+  }
+
+  private handleSearchChange(event: any): void {
+    this.setState({
+      search: event.target.value.toLowerCase(),
+      activePage: 1,
+    });
   }
 
   private openModalBookmarkForm(bookmark: Bookmark | undefined, bookmarkType: BookmarkType, isUpdate: boolean, labelHeader: string): void {
@@ -83,15 +93,27 @@ export default class BookmarkList extends React.Component<
   }
 
   render() {
-    const bookmarksFilterByPage: Bookmark[] = this.props.bookmarks.slice(this.state.activePage * 5 - 5, this.state.activePage * 5);
+    const bookmarksFilterBySearch: Bookmark[] = this.props.bookmarks.filter((bookmark: Bookmark) => {
+      return (
+        !this.state.search ||
+        bookmark.title.toLowerCase().includes(this.state.search) ||
+        bookmark.author?.toLowerCase().includes(this.state.search) ||
+        bookmark.url?.toLowerCase().includes(this.state.search) ||
+        bookmark.keywords.filter((keyword: string) => keyword.toLowerCase().includes(this.state.search)).length > 0
+      );
+    });
+    const bookmarksFilterByPageAndSearch: Bookmark[] = bookmarksFilterBySearch.slice(this.state.activePage * 5 - 5, this.state.activePage * 5);
 
     return (
       <div className='BookmarkList'>
         <Row>
           <Col s={12}>
+            <input placeholder='Search' id='search' type='text' name='search' onChange={this.handleSearchChange} required />
+          </Col>
+          <Col s={12}>
             <Collection header='Bookmarks' style={{ minHeight: '300px' }}>
-              {bookmarksFilterByPage.length > 0 ? (
-                bookmarksFilterByPage.map((bookmark: Bookmark, i) => {
+              {bookmarksFilterByPageAndSearch.length > 0 ? (
+                bookmarksFilterByPageAndSearch.map((bookmark: Bookmark, i) => {
                   return (
                     <BookmarkListItem
                       key={bookmark.id}
@@ -113,9 +135,9 @@ export default class BookmarkList extends React.Component<
             <Pagination
               activePage={this.state.activePage}
               itemsCountPerPage={5}
-              totalItemsCount={this.props.bookmarks.length + 1}
+              totalItemsCount={bookmarksFilterBySearch.length + 1}
               pageRangeDisplayed={5}
-              onChange={this.handlePageChange.bind(this)}
+              onChange={this.handlePageChange}
             />
           </Col>
           <Col s={12} style={{ textAlign: 'right', marginTop: '15px' }}>

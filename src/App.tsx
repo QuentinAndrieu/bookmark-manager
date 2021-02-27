@@ -25,10 +25,7 @@ export default class App extends React.Component<{}, { bookmarks: Bookmark[]; st
   }
 
   componentDidMount() {
-    this.state.store.subscribe(() => {
-      console.log('state', this.state.store.getState().bookmarks);
-      this.setState({ bookmarks: this.state.store.getState().bookmarks });
-    });
+    this.state.store.subscribe(() => this.setState({ bookmarks: this.state.store.getState().bookmarks }));
   }
 
   render() {
